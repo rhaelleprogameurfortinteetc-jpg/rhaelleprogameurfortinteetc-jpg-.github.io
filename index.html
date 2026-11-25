@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RHAELLE.GG</title>
+<style>
+  :root { --bg: #0b1a33; --panel: #112447; --accent: #4fc3f7; --text: #e6f0ff; --ok: #4cff9a; --ko: #ff5c7a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, sans-serif;
+    background: radial-gradient(circle at top, #15305e 0%, var(--bg) 70%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  h1 { text-align: center; letter-spacing: 4px; color: var(--accent); }
+  .orb-wrap { display: flex; justify-content: center; margin: 28px 0; }
+  .orb {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #9be7ff, #1e6fd9 60%, #0b1a33);
+    box-shadow: 0 0 40px #4fc3f7aa;
+    animation: pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 30px #4fc3f7aa; }
+    50% { transform: scale(1.08); box-shadow: 0 0 60px #4fc3f7dd; }
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid #1f3a6b;
+    border-radius: 14px;
+    padding: 16px;
+    margin: 12px auto;
+    max-width: 480px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+  .on { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .off { background: var(--ko); box-shadow: 0 0 8px var(--ko); }
+  .btn {
+    display: block;
+    margin: 24px auto 0;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .btn.spin span { display: inline-block; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .updated { text-align: center; opacity: 0.6; margin-top: 12px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<h1>RHAELLE.GG</h1>
+
+<div class="orb-wrap"><div class="orb"></div></div>
+
+<div id="modules"></div>
+
+<button class="btn" id="refresh"><span>⟳</span> Rafraîchir</button>
+<p class="updated" id="updated"></p>
+
+<script>
+  const modules = [
+    { name: "Discord", key: "discord" },
+    { name: "Google (Gmail / YouTube)", key: "google" },
+    { name: "Bots Discord", key: "bots" },
+    { name: "Agent IA / Bureau", key: "agent" }
+  ];
+
+  function render(statuses) {
+    const box = document.getElementById("modules");
+    box.innerHTML = "";
+    modules.forEach(m => {
+      const online = statuses[m.key];
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<span><span class="dot ${online ? "on" : "off"}"></span>${m.name}</span>
+                        <span>${online ? "Connecté" : "Déconnecté"}</span>`;
+      box.appendChild(card);
+    });
+  }
+
+  // Statuts simulés : à remplacer plus tard par un appel à /api/status
+  function fetchStatus() {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          discord: Math.random() > 0.3,
+          google: Math.random() > 0.5,
+          bots: Math.random() > 0.4,
+          agent: false
+        });
+      }, 700);
+    });
+  }
+
+  async function refresh() {
+    const btn = document.getElementById("refresh");
+    btn.classList.add("spin");
+    const statuses = await fetchStatus();
+    render(statuses);
+    btn.classList.remove("spin");
+    document.getElementById("updated").textContent =
+      "Mis à jour à " + new Date().toLocaleTimeString("fr-FR");
+  }
+
+  document.getElementById("refresh").addEventListener("click", refresh);
+  refresh();
+</script>
+</body>
+</html>
